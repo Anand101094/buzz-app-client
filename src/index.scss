@@ -1,0 +1,54 @@
+.host-screen__container {
+  display: flex;
+
+  .connected-clients,
+  .buzzed-clients {
+    width: 50%;
+  }
+
+  .connected-clients {
+    .client {
+      background-color: #f2f2f2;
+      padding: 8px;
+      border-bottom: 1px solid darkgray;
+    }
+
+    .client:last-of-type {
+      border-bottom: none;
+    }
+  }
+
+  .buzzed-clients {
+    .client {
+      background-color: lightgreen;
+      padding: 8px;
+      border-bottom: 1px solid darkgray;
+    }
+
+    .client:last-of-type {
+      border-bottom: none;
+    }
+  }
+}
+
+.joining-room {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .room-id__textbox,
+  .username__textbox {
+    width: 50%;
+  }
+}
+
+.host-play__btn-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.buzz-button,
+.reset-buzzer-btn {
+  padding-top: 16px;
+}
