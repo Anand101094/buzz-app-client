@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
+import Buzz from '../public/resources/mixkit-game-show-buzz-in-3090.wav'
 
 const Host = ({ users }) => {
   const [roomId, setRoomId] = useState(undefined);
 
-  const audio = new Audio(
-    "./public/resources/mixkit-game-show-buzz-in-3090.wav"
-  );
+  const audio = new Audio(Buzz);
 
   useEffect(() => {
     // make the api call and get the Room ID

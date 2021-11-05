@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Buzz from '../public/resources/mixkit-game-show-buzz-in-3090.wav'
 
 const JoinRoom = ({ users }) => {
   const [roomId, setRoomId] = useState("");
@@ -6,9 +7,7 @@ const JoinRoom = ({ users }) => {
   const [roomJoined, setRoomJoined] = useState(false);
   const [disable, setDisable] = useState(false);
 
-  const audio = new Audio(
-    "./public/resources/mixkit-game-show-buzz-in-3090.wav"
-  );
+  const audio = new Audio(Buzz);
 
   useEffect(() => {
     socket.on("buzzer_reset", () => {
