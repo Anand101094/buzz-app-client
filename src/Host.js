@@ -9,11 +9,11 @@ const Host = ({ users }) => {
 
   useEffect(() => {
     // make the api call and get the Room ID
-    fetch("http://localhost:3000/host")
+    fetch("https://heroku-buzz-app.herokuapp.com/host")
       .then((res) => res.json())
       .then((data) => {
         setRoomId(data.roomId.toString());
-        socket.emit("join_room", {
+        const socketData = {
           roomId: `${data.roomId}`,
           userData: {
             userId: socket.id,
@@ -21,15 +21,25 @@ const Host = ({ users }) => {
             joinedRoom: data.roomId.toString(),
             host: true,
           },
-        });
-      });
+        }
 
+        // if socketid is available, join the room
+        if (socket.id) {
+          socket.emit("join_room", socketData);
+        } else {
+          // else wait for the connection and join the room
+          socket.on("connect", () => {
+            socket.emit("join_room", socketData);
+          });
+        }
+      });
     socket.on("buzzer_clicked", (data) => {
       audio.play();
     });
   }, []);
 
   const connectedClients = users.filter((user) => user.userId !== socket.id);
+  console.log(connectedClients);
   const buzzedClients = connectedClients
     .filter((user) => user.timeStamp)
     .sort((a, b) => {
@@ -40,7 +50,7 @@ const Host = ({ users }) => {
     <div className="host-screen">
       <h5>Host screen</h5>
       {roomId && <div className="roomId">{`Room Id : ${roomId}`}</div>}
-      {buzzedClients.length !== 0 && (  
+      {buzzedClients.length !== 0 && (
         <div className="reset__buzzer-btn">
           <button
             onClick={() => socket.emit("reset_buzzers", { roomId })}
