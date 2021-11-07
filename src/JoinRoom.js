@@ -1,23 +1,66 @@
 import React, { useState, useEffect } from "react";
-import Buzz from '../public/resources/mixkit-game-show-buzz-in-3090.wav'
+// import setDragElement from "./util";
+import Buzz from "../public/resources/mixkit-game-show-buzz-in-3090.wav";
 
 const JoinRoom = ({ users }) => {
   const [roomId, setRoomId] = useState("");
   const [name, setName] = useState("");
   const [roomJoined, setRoomJoined] = useState(false);
-  const [disable, setDisable] = useState(false);
+  const [disableBuzzBtn, setDisableBuzzBtn] = useState(false);
+  const [disableJoinBtn, setDisableJoinBtn] = useState(true);
+  const [lockBuzzBtn, setLockBuzzBtn] = useState(false);
 
   const audio = new Audio(Buzz);
 
   useEffect(() => {
     socket.on("buzzer_reset", () => {
-      setDisable(false);
+      setDisableBuzzBtn(false);
     });
 
     socket.on("host_disconected", () => {
       setRoomJoined(false);
     });
+
+    socket.on("kicked_out", () => {
+      setRoomJoined(false);
+    });
+
+    socket.on("room_joined", () => {
+      setRoomJoined(true);
+    });
+
+    socket.on("invalid_room", () => {
+      setRoomJoined(false);
+      alert("Invalid Room");
+    });
+
+    socket.on("buzzer_locked_by", ({ socketId }) => {
+      if (socket.id !== socketId) {
+        setLockBuzzBtn(true);
+      }
+    });
+
+    socket.on("buzzer_unlocked", () => {
+      setLockBuzzBtn(false);
+    });
   }, []);
+
+  useEffect(() => {
+    if (name && roomId) {
+      setDisableJoinBtn(false);
+    } else {
+      setDisableJoinBtn(true);
+    }
+  }, [name, roomId]);
+
+  // useEffect(() => {
+  //   if (roomJoined) {
+  //     const buzzBtn = document.getElementById("client-buzz-button");
+  //     if (buzzBtn) {
+  //       setDragElement(buzzBtn);
+  //     }
+  //   }
+  // }, [roomJoined]);
 
   const joinRoom = () => {
     socket.emit("join_room", {
@@ -28,13 +71,11 @@ const JoinRoom = ({ users }) => {
         joinedRoom: roomId,
       },
     });
-
-    setRoomJoined(true);
   };
 
   const sendBuzzer = () => {
     // disable button
-    setDisable(true);
+    setDisableBuzzBtn(true);
 
     // send timestamp data
     const timeStamp = Date.now();
@@ -71,7 +112,11 @@ const JoinRoom = ({ users }) => {
             onChange={(e) => setName(e.target.value)}
           ></input>
         </div>
-        <button onClick={joinRoom} className="btn pink">
+        <button
+          disabled={disableJoinBtn}
+          onClick={disableJoinBtn ? () => {} : joinRoom}
+          className="btn join-room__btn"
+        >
           Join
         </button>
       </div>
@@ -79,15 +124,30 @@ const JoinRoom = ({ users }) => {
   } else {
     return (
       <div className="players-view">
-        {users.length && <span>{users.length} people connected</span>}
+        {users.length && (
+          <span className="connected-people__text">
+            {users.length} people connected
+          </span>
+        )}
+        <div className="roomId">
+          <span>Room ID:</span>
+          <span title="click to copy" className="copy__roomId">
+            {roomId}
+          </span>
+        </div>
+        <div className="username_text">
+          <span>My "Internet" name:</span>
+          <span className="copy__roomId">{name}</span>
+        </div>
         {
           <div className="buzz-button">
             <button
-              disabled={disable}
-              onClick={disable ? () => {} : sendBuzzer}
-              className="btn red"
+              id="client-buzz-button"
+              disabled={disableBuzzBtn || lockBuzzBtn}
+              onClick={disableBuzzBtn || lockBuzzBtn ? () => {} : sendBuzzer}
+              className="btn btn-large"
             >
-              {disable ? "Buzzed" : "Click the Buzzer"}
+              {lockBuzzBtn ? "Locked" : disableBuzzBtn ? "Buzzed" : "Buzzer"}
             </button>
           </div>
         }
