@@ -39,7 +39,8 @@ module.exports = {
         }),
         new CopyWebpackPlugin({
             patterns: [
-              { from: "./public/_redirects", to: path.resolve(__dirname, 'dist')}
+              { from: "./public/_redirects", to: path.resolve(__dirname, 'dist')},
+              { from: "./public/robots.txt", to: path.resolve(__dirname, 'dist')},
             ]
           }),
     ]
